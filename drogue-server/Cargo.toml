@@ -1,0 +1,16 @@
+[package]
+name = "drogue-server"
+version = "0.7.0"
+authors = ["Ulf Lilleengen <lulf@redhat.com>"]
+edition = "2018"
+
+[dependencies]
+
+clap = { version = "2.33.3" }
+drogue-cloud-console-backend = { path = "../console-backend" }
+drogue-cloud-service-common = { path = "../service-common" }
+drogue-cloud-device-management-service = { path = "../device-management-service" }
+env_logger = { version = "0.7" } 
+log = "0.4"
+tokio = { version = "1.11.0", features = ["full"] }
+actix-rt = { version = "2.2.0" }
