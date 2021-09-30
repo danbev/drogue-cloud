@@ -22,6 +22,11 @@ fn main() {
                     Arg::with_name("registry")
                         .long("--registry")
                         .help("run the registry backend"),
+                )
+                .arg(
+                    Arg::with_name("mqtt-endpoint")
+                        .long("--mqtt-endpoint")
+                        .help("run the mqtt endpoint"),
                 ),
         )
         .get_matches();
@@ -70,6 +75,18 @@ fn main() {
                 })
                 .block_on(drogue_cloud_console_backend::run(config))
                 .unwrap();
+            });
+            threads.push(t);
+        }
+
+        if matches.is_present("mqtt-endpoint") {
+            let t = std::thread::spawn(move || {
+                let mut config = drogue_cloud_mqtt_endpoint::Config::from_env().unwrap();
+                config.bind_addr_mqtt = Some("127.0.0.1:10002".into());
+                config.bind_addr_http = "127.0.0.1:10003".into();
+                ntex::rt::System::new("mqtt-endpoint")
+                    .block_on(drogue_cloud_mqtt_endpoint::run(config))
+                    .unwrap();
             });
             threads.push(t);
         }

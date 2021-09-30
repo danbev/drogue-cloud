@@ -2487,9 +2487,12 @@ dependencies = [
  "clap",
  "drogue-cloud-console-backend",
  "drogue-cloud-device-management-service",
+ "drogue-cloud-mqtt-endpoint",
  "drogue-cloud-service-common",
  "env_logger 0.7.1",
  "log",
+ "ntex",
+ "ntex-rt",
  "tokio 1.11.0",
 ]
 
