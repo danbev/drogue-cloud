@@ -45,7 +45,7 @@ fn main() {
                 actix_rt::System::with_tokio_rt(|| {
                     tokio::runtime::Builder::new_current_thread()
                         .enable_all()
-                        .worker_threads(8)
+                        .worker_threads(1)
                         .thread_name("registry")
                         .build()
                         .unwrap()
@@ -63,7 +63,7 @@ fn main() {
                 actix_rt::System::with_tokio_rt(|| {
                     tokio::runtime::Builder::new_current_thread()
                         .enable_all()
-                        .worker_threads(8)
+                        .worker_threads(1)
                         .thread_name("console-server")
                         .build()
                         .unwrap()
