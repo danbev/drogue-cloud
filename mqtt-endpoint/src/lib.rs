@@ -39,11 +39,9 @@ pub struct Config {
     pub key_file: Option<String>,
     #[serde(default)]
     pub bind_addr_mqtt: Option<String>,
-    #[serde(default = "defaults::bind_addr")]
-    pub bind_addr_http: String,
 
     #[serde(default)]
-    pub health: HealthServerConfig,
+    pub health: Option<HealthServerConfig>,
 
     pub command_source_kafka: KafkaCommandSourceConfig,
 }
@@ -120,13 +118,14 @@ pub async fn run(config: Config) -> anyhow::Result<()> {
 
     let command_source = KafkaCommandSource::new(commands, config.command_source_kafka)?;
 
-    // health server
-
-    let health = HealthServer::new(config.health, vec![Box::new(command_source)]);
-
     // run
-
-    futures::try_join!(health.run_ntex(), builder.run().err_into(),)?;
+    if let Some(health) = config.health {
+        // health server
+        let health = HealthServer::new(health, vec![Box::new(command_source)]);
+        futures::try_join!(health.run_ntex(), builder.run().err_into(),)?;
+    } else {
+        futures::try_join!(builder.run())?;
+    }
 
     // exiting
 

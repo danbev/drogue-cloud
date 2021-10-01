@@ -27,7 +27,7 @@ members = [
     "api-key-service",
     "admin-service",
     "event-common",
-    "drogue-server",
+    "server",
     "websocket-integration",
 ]
 

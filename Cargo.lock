@@ -2485,15 +2485,21 @@ version = "0.7.0"
 dependencies = [
  "actix-rt 2.2.0",
  "clap",
+ "drogue-cloud-api-key-service",
  "drogue-cloud-console-backend",
  "drogue-cloud-device-management-service",
+ "drogue-cloud-endpoint-common",
+ "drogue-cloud-event-common",
  "drogue-cloud-mqtt-endpoint",
+ "drogue-cloud-registry-events",
+ "drogue-cloud-service-api",
  "drogue-cloud-service-common",
  "env_logger 0.7.1",
  "log",
  "ntex",
  "ntex-rt",
  "tokio 1.11.0",
+ "url",
 ]
 
 [[package]]

@@ -10,7 +10,13 @@ clap = { version = "2.33.3" }
 drogue-cloud-console-backend = { path = "../console-backend" }
 drogue-cloud-mqtt-endpoint = { path = "../mqtt-endpoint" }
 drogue-cloud-service-common = { path = "../service-common" }
+drogue-cloud-service-api = { path = "../service-api" }
+drogue-cloud-api-key-service = { path = "../api-key-service" }
+drogue-cloud-registry-events = { path = "../registry-events" }
+drogue-cloud-event-common = { path = "../event-common" }
+drogue-cloud-endpoint-common = { path = "../endpoint-common" }
 drogue-cloud-device-management-service = { path = "../device-management-service" }
+url = "2"
 env_logger = { version = "0.7" } 
 log = "0.4"
 tokio = { version = "1.11.0", features = ["full"] }

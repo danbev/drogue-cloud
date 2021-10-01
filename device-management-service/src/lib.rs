@@ -32,7 +32,7 @@ pub struct Config {
     pub enable_auth: bool,
 
     #[serde(default)]
-    pub health: HealthServerConfig,
+    pub health: Option<HealthServerConfig>,
 
     pub kafka_sender: KafkaSenderConfig,
 }
@@ -165,12 +165,9 @@ pub async fn run(config: Config) -> anyhow::Result<()> {
         service: service.clone(),
     });
 
-    // health server
-
-    let health = HealthServer::new(config.health, vec![Box::new(service.clone())]);
-
     // main server
 
+    let db_service = service.clone();
     let main = HttpServer::new(move || {
         let auth = openid_auth!(req -> {
             req
@@ -183,7 +180,7 @@ pub async fn run(config: Config) -> anyhow::Result<()> {
             .app_data(data.clone())
             // for the admin service
             .app_data(web::Data::new(apps::WebData {
-                service: service.clone(),
+                service: db_service.clone(),
             }))
     })
     .bind(config.bind_addr)?
@@ -191,7 +188,12 @@ pub async fn run(config: Config) -> anyhow::Result<()> {
 
     // run
 
-    futures::try_join!(health.run(), main.err_into())?;
+    if let Some(health) = config.health {
+        let health = HealthServer::new(health, vec![Box::new(service)]);
+        futures::try_join!(health.run(), main.err_into())?;
+    } else {
+        futures::try_join!(main)?;
+    }
 
     // exiting
 

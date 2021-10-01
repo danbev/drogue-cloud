@@ -27,7 +27,6 @@ use drogue_cloud_service_common::{
     client::{UserAuthClient, UserAuthClientConfig},
     config::ConfigFromEnv,
     defaults,
-    endpoints::create_endpoint_source,
     health::{HealthServer, HealthServerConfig},
     openid::{Authenticator, TokenConfig},
     openid_auth,
@@ -57,8 +56,6 @@ async fn index(
 pub struct Config {
     #[serde(default = "defaults::bind_addr")]
     pub bind_addr: String,
-    #[serde(default = "defaults::health_bind_addr")]
-    pub health_bind_addr: String,
     #[serde(default = "defaults::enable_auth")]
     pub enable_auth: bool,
     pub kafka: KafkaClientConfig,
@@ -72,13 +69,13 @@ pub struct Config {
     pub keycloak: KeycloakApiKeyServiceConfig,
 
     #[serde(default)]
-    pub health: HealthServerConfig,
+    pub health: Option<HealthServerConfig>,
 
     #[serde(default)]
     pub disable_account_url: bool,
 }
 
-pub async fn run(config: Config) -> anyhow::Result<()> {
+pub async fn run(config: Config, endpoints: Endpoints) -> anyhow::Result<()> {
     log::info!("Running console server!");
     // kube
 
@@ -89,12 +86,6 @@ pub async fn run(config: Config) -> anyhow::Result<()> {
 
     let config_maps = Api::<ConfigMap>::default_namespaced(kube.clone());
     */
-
-    // the endpoint source we choose
-
-    let endpoint_source = create_endpoint_source()?;
-    log::info!("Using endpoint source: {:?}", endpoint_source);
-    let endpoints = endpoint_source.eval_endpoints().await?;
 
     // OpenIdConnect
 
@@ -174,11 +165,6 @@ pub async fn run(config: Config) -> anyhow::Result<()> {
                 .context("Failed to create registry client")?,
         ),
     );
-
-    // health server
-    log::info!("Creating health server");
-
-    let health = HealthServer::new(config.health, vec![]);
 
     // upstream API url
     #[cfg(feature = "forward")]
@@ -274,7 +260,12 @@ pub async fn run(config: Config) -> anyhow::Result<()> {
     .run();
 
     // run
-    futures::try_join!(health.run(), main.err_into())?;
+    if let Some(health) = config.health {
+        let health = HealthServer::new(health, vec![]);
+        futures::try_join!(health.run(), main.err_into())?;
+    } else {
+        futures::try_join!(main)?;
+    }
 
     Ok(())
 }
